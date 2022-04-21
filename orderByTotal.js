@@ -22,8 +22,7 @@ function orderByTotal(array, sortOrder = "ASC") {
   array.forEach((object) => {
     const amount = isNaN(Number(object.amount)) ? 0 : Number(object.amount);  
     const quantity = isNaN(Number(object.quantity)) ? 0 : Number(object.quantity);
-    object.Total = amount * quantity;
-    outputArray.push(object);
+    outputArray.push({...object, Total: amount * quantity});
   });
   outputArray.sort((a, b) => {
     return sortOrder === "ASC" ? a.Total - b.Total : b.Total - a.Total;
@@ -32,6 +31,7 @@ function orderByTotal(array, sortOrder = "ASC") {
 }
 
 // TESTING
-console.log("This is input array", inputArray); // to confirm that the input array remained intact
+
 console.log("This is output array sorted by ASC", orderByTotal(inputArray));
 console.log("This is output array sorted by DESC", orderByTotal(inputArray, "DESC")); 
+console.log("This is input array", inputArray); // to confirm that the input array remained intact
