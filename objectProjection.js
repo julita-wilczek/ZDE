@@ -14,33 +14,28 @@ const prototypeObject2 = { prop11: { prop22: null }, prop13: null };
 const sourceObject3 = JSON.parse('{"prop11":{"prop21":21,"prop22":{"prop31":null,"prop32":32}},"prop12":{"prop23":{"prop33":33}}}');
 const prototypeObject3 = { prop11: { prop22: { prop31: null } }, prop12: null };
 
-function projectObject(source, prototype) {
-  return Object.assign(...Object.keys(prototype).map((key) => {
-      if (key in source) {
-        if (isValidObject(source[key]) && isValidObject(prototype[key])) {
-          // for properties that have object as a value
-          const nestedObject = projectObject(source[key], prototype[key]);
-          return Object.keys(nestedObject).length
-            ? { [key]: nestedObject }
-            : {};
-        } else {
-          return getKeyValue(source, key); // for properties that do not have object as a value
-        }
-      } else {
-        return getKeyValue(prototype, key); // for cases when the prototype has property not existing in source object
-      }
-    })
-  );
-}
+const sourceObject4 = {prop22: null, prop33: {prop331: 1,prop332:2},prop11: {prop111: "value",prop112: {prop112: null}}};
+const prototypeObject4 = {prop11:{prop22: null,prop111: {prop111: null},prop112: null}, prop33: {}, prop22: 2};
 
-function isValidObject(object) {
-  return object && typeof object === "object";
-}
+const projectObject = (source, prototype) => {
 
-function getKeyValue(object, key) {
-  return { [key]: object[key] };
+    return Object.assign({}, ...Object.keys(prototype).map(key => 
+        {if (key in source) {
+            if (prototype[key] && typeof prototype[key] === 'object') {
+                if (Object.keys(prototype[key]).length === 0) {
+                    return {[key]: source[key]}
+                } else {
+                    const nested = projectObject(source[key], prototype[key])
+                    return Object.keys(nested).length
+                    ? { [key]: nested }
+                    : {};
+                }
+            } else {
+      return {[key]: source[key]}}
+        }}))
 }
 
 console.log(projectObject(sourceObject, prototypeObject)); // expected {prop11: {prop22: {prop31:31, prop32: 32}}};
-console.log(projectObject(sourceObject2, prototypeObject2)); // expected {prop11: {prop22: {prop31: {prop41: 41}, prop32: 32}}, prop13: null};
-console.log(projectObject(sourceObject3, prototypeObject3)); // expected {prop11: {prop22: {prop31: 31}}, prop12: {prop23: {prop33:33}}};
+console.log(projectObject(sourceObject2, prototypeObject2)); // expected {prop11: {prop22: {prop31: {prop41: 41}, prop32: 32}}};
+console.log(projectObject(sourceObject3, prototypeObject3)); // expected {prop11: {prop22: {prop31: null}}, prop12: {prop23: {prop33:33}}};
+console.log(projectObject(sourceObject4, prototypeObject4)) // expected { "prop11": { "prop112": {"prop112": null}},"prop33": {"prop331": 1,"prop332": 2},"prop22": null}
