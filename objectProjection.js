@@ -33,8 +33,8 @@ const prototypeObject4 = {
 const projectObject = (source, prototype) => {
   return Object.assign(
     {},
-    ...Object.keys(prototype).map((key) => {
-      if (key in source) {
+    ...Object.keys(source).map((key) => {
+      if (key in prototype) {
         if (prototype[key] && typeof prototype[key] === "object") {
           if (Object.keys(prototype[key]).length === 0) {
             return { [key]: source[key] };
