@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <title>Busy times</title>
+  </head>
+  <body>
+    <div class="container-fluid w-50">
+      <div class="row justify-content-center">
+        <div class="col">
+          <div class="mt-5 mb-3">
+            <input
+              id="calendarID"
+              class="w-50"  
+              placeholder="Your calendarID"
+              title="Enter your calendarID"
+              onchange="setID()"
+              
+            />
+          </div>
+          <div class="mb-3">
+            <input
+              type="date"
+              class="w-50"
+              id="start"
+              title="Enter the start date"
+              onchange="setStart()"
+            />
+          </div>
+          <div class="mb-3">
+            <input
+              type="date"
+              class="w-50"
+              id="end"
+              title="Enter the end date"
+              onchange="setEnd()"
+            />
+          </div>
+          <div class="mb-3">
+            <button
+              type="button"
+              class="btn btn-light w-50"
+              onclick="fetchBusy()"
+            >
+              When I am busy?
+            </button>
+          </div>
+        </div>
+        <div class="col">
+          <div class="mt-5 mb-3">My Busy times:</div>
+          <ul id="showBusy"></ul>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+// 2.1.	Develop a program in JS which returns array of free/busy intervals in a given time period 
+// for any shared Google calendar. 
+// Input: shared Google calendar ID; time period (starting and ending moments). 
+// Output: array of busy intervals.
+// Alternatively (if this is too difficult to develop) provide sequence 
+// of REST API calls that can be executed in REST API client (Postman) in order to achieve the same result.
+
+    let calendarID = "";
+    let startingTime = "";
+    let endingTime = "";
+
+    const setID = () => {
+      const inputID = document.getElementById("calendarID");
+      calendarID = inputID.value;
+    };
+
+    const setStart = () => {
+      const inputDate = document.getElementById("start");
+      startingTime = new Date(inputDate.value).toISOString();
+    };
+
+    const setEnd = () => {
+      const inputDate = document.getElementById("end");
+      endingTime = new Date(inputDate.value).toISOString();
+    };
+
+    const fetchBusy = async () => {
+      try {
+        const requestBody = {
+          timeMin: startingTime,
+          timeMax: endingTime,
+          items: [{ id: calendarID }],
+        };
+
+        const response = await fetch(
+          "https://www.googleapis.com/calendar/v3/freeBusy",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization:
+                "Bearer ya29.A0ARrdaM_kjr9xR-JBzahVNLHx5Y8-HrK1UL0bI2n0BaMNyeYm5D81dUIt-vNzltywpfPIGDw5S_JItJWl9XijrdEvEjPIKfcGPXcUqb2IE8tM3X4voQjjMA5P2UGvRx-XhpiSfXpyPhI8k_ouZsNaxEG0uq9OLA",
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
+        const data = await response.json();
+        const busyPeriods = data.calendars[calendarID].busy;
+        const busyDisplay = document.getElementById("showBusy");
+
+        busyPeriods.forEach((period) => {
+          let div = document.createElement("li");
+
+          div.innerText = `${new Date(period.start).toLocaleString()} - ${new Date(period.end).toLocaleString()}`;
+          busyDisplay.appendChild(div);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  </script>
+</html>
